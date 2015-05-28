@@ -12,8 +12,12 @@ from socket import socket, AF_INET, SOCK_STREAM
 import sys
 import os.path
 from threading import Thread
+from logger import Logger
 
 run_start_time = time.time()
+
+# Start logging
+datalog = Logger()
 
 #Compass Variables
 compass_value = 0
@@ -41,16 +45,17 @@ GPS_port_name = '/dev/ttyUSB0'
 
 # Start the power/steering serial port (causes the Arduido to reset so
 # wait a few seconds for that to happen)
-print "Starting Power/Steering Communications"
+datalog.write("Starting Power/Steering Communications")
+
 inputSerial = serial.Serial(steeringPower_port_name, 9600)
 time.sleep(5)
 
 # Start the compass serial port
-print "Starting Compass Communications"
+datalog.write("Starting Compass Communications")
 compassSerial = serial.Serial(compass_port_name, 9600)
 
 # Start the GPS serial port
-print "Starting GPS Communications"
+datalog.write("Starting GPS Communications")
 GPSSerial = serial.Serial(GPS_port_name, 4800)
 
 #Terminate The Program
@@ -58,7 +63,7 @@ def terminate():
   global compass_run_flag
   global camera_run_flag
   global GPS_run_flag
-  print 'Terminate Called'
+  datalog.write('Terminate Called')
   compass_run_flag = False
   GPS_run_flag = False
   camera_run_flag = False
@@ -73,18 +78,15 @@ def compass_thread():
   while compass_run_flag == True:
     if compassSerial.inWaiting() > 0:   
       compass_data = compassSerial.readline().rstrip().split(',')
-      #print ">>>", compass_data
       if len(compass_data) == 3:
         if compass_data[1].isdigit():                     
           compass_value = int(compass_data[1])
           compass_value = (1.10905*compass_value) + 1.8176 #(1.0013*compass_value) - 1.3555
-          #print ">>> ", compass_value
         if compass_data[2] == "1":
           bump_switch_state = True
         else:
           bump_switch_state = False
-        #print ">>>", bump_switch_state
-  print 'Compass Thread Terminating'
+  datalog.write('Compass Thread Terminating')
   compassSerial.close()
 
 def get_bump_switch_state():
@@ -100,7 +102,7 @@ def camera_thread():
     global camera_values
     global camera_run_flag
 
-    print "Camera thread started"
+    datalog.write("Camera thread started")
     camera_run_flag = True
     
     s = socket(AF_INET, SOCK_STREAM)
@@ -111,10 +113,10 @@ def camera_thread():
         try:
             camera_values = (int(camera_fields[0]),int(camera_fields[1]))
         except:
-            print "bad camera data", camera_data
+            datalog.write("bad camera data", camera_data)
 
     s.close()
-    print "Camera thread terminated"
+    datalog.write("Camera thread terminated")
 
 def get_camera_values():
     global camera_values
@@ -140,7 +142,7 @@ def GPS_thread():
         else:
           GPS_Lat=0.0
           GPS_Long=0.0 
-  print 'GPS Thread Terminating'
+  datalog.write('GPS Thread Terminating')
   GPSSerial.close()
   
 
@@ -149,7 +151,7 @@ def get_GPS():
   global GPS_Lat
   global GPS_Long
   while (GPS_Lat==0.0):
-    print "Waiting for GPS"
+    datalog.write("Waiting for GPS")
     time.sleep(1)
   return (GPS_Lat,GPS_Long)
 
@@ -179,7 +181,7 @@ def get_distance_and_bearing(from_lat,from_long,to_lat,to_long):
   return (distance,bearing)
 
 # Set the Arduino to Drive Mode by sending control string
-print "Set to DRIVE mode"
+datalog.write("Set to DRIVE mode")
 inputSerial.write("+++DRIVE+++")
 inputSerial.write("\n")
 #inputSerial.flush()
@@ -202,7 +204,6 @@ def set_pwr_and_steer(steer_value, power):
 #Drive At specified Speed and Target Heading for Specified Time
 def drive(speed, target_heading, time_in_seconds):
   start_time = time.time()
-  #print speed, target_heading, time_in_seconds
 
   while ((time.time() - start_time) < time_in_seconds):
     compass_value = get_compass()
@@ -214,16 +215,14 @@ def drive(speed, target_heading, time_in_seconds):
      
     steer_value = int((500.0/180.0) * delta_angle * steering_gain)
       
-    #print "Target:", target_heading, ",compass:", compass_value, ",delta:", delta_angle, ",speed:", speed, ",steer:", steer_value
     set_pwr_and_steer(steer_value, speed)
-    #time.sleep(0.5)
 
 def stop_driving():
   drive(1500, 0, 1)
 
 #Drive to specified GPS way point. 
 def drive_to(speed, Latitude, Longitude):
-  print "drive_to:",speed, Latitude, Longitude
+  datalog.write("drive_to: %s, %s, %s" % (speed, Latitude, Longitude))
 
   (currentLat,currentLong)=get_GPS()
   (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
@@ -247,7 +246,7 @@ def drive_to(speed, Latitude, Longitude):
      
     steer_value = int((500.0/180.0) * delta_angle * steering_gain + sum_delta_angle * sum_steering_gain)
       
-    print time.time() - run_start_time, "Bearing", currentBearing, ", compass:", compass_value, ", delta:", delta_angle, ", distance:", currentDistance, ", speed:", speed, ", steer:", steer_value 
+    datalog.write("TIME: %s, BEARING: %s, COMPASS: %s, DELTA: %s, DIST: %s, SPEED %s, STEER %s" % (time.time() - run_start_time, currentBearing, compass_value, delta_angle, currentDistance, speed, steer_value))
     set_pwr_and_steer(steer_value, speed)
     #time.sleep(0.5)
 
@@ -262,15 +261,17 @@ def drive_to_cone(speed, Latitude, Longitude):
      (currentLat,currentLong)=get_GPS()
      (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
      while currentDistance < 7:
-        print "Camera Mode"
-        if get_camera_values()[0] == 0:
+        datalog.write("Camera Mode")
+        camera_value = get_camera_values()[0]
+        if camer_value == 0:
           if time.time() % 15 < 15:
             steer_value = -500
           else:
             steer_value = 500
         else:
-          steer_value = ((get_camera_values()[0] * (500/320))-500) 
-          print(str(steer_value))
+          steer_value = ((camera_value * (500/320))-500) 
+          datalog.write("DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % (currentDistance, camera_value, steer_value))
+
           set_pwr_and_steer(steer_value,camera_speed)
         if get_bump_switch_state() == True:
 	  found_it = True
@@ -376,24 +377,24 @@ def competition_1():
 #========================================================
 #Main program starts here
 #========================================================
-print "Starting Compass Thread"  
+datalog.write("Starting Compass Thread")  
 compass_thread = Thread(target=compass_thread)
 compass_thread.start()
 
-print "Starting GPS Thread"
+datalog.write("Starting GPS Thread")
 GPS_thread = Thread(target=GPS_thread)
 GPS_thread.start()
 
-print "Starting Camera Thread"
+datalog.write("Starting Camera Thread")
 camera_thread = Thread(target=camera_thread)
 camera_thread.start()
 
 try:
   get_GPS()
-  print "Armed and Ready - Press Button"
+  datalog.write("Armed and Ready - Press Button")
   while get_bump_switch_state() == False:
     pass
-  print "Go!!!"
+  datalog.write("Go!!!")
   #drive_gps_only()
   competition_1()
 
@@ -404,11 +405,12 @@ except KeyboardInterrupt:
 #Main program stops here
 #========================================================
 stop_driving()
-print "Set to STOPPED mode"
+datalog.write("Set to STOPPED mode")
 inputSerial.write("+++STOP+++")
 inputSerial.write("\n")
 inputSerial.flush()
 
 terminate()
-print 'Done!!!'
+datalog.write('Done!!!')
+del datalog
 
