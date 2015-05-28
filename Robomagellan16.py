@@ -1,12 +1,9 @@
 #!/usr/bin/python
 
-# Robomagellan 2015 Ver 1.0 
-# 
-#     
-#     
+# Robomagellan 2016
 #
-#    
-#
+
+# Import all the things
 import math
 import serial
 import signal
