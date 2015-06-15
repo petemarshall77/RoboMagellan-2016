@@ -246,7 +246,7 @@ def drive_to(speed, Latitude, Longitude):
      
     steer_value = int((500.0/180.0) * delta_angle * steering_gain + sum_delta_angle * sum_steering_gain)
       
-    datalog.write("TIME: %s, BEARING: %s, COMPASS: %s, DELTA: %s, DIST: %s, SPEED %s, STEER %s" % (time.time() - run_start_time, currentBearing, compass_value, delta_angle, currentDistance, speed, steer_value))
+    datalog.write("TIME: %s, LAT: %s, LON: %s, BEARING: %s, COMPASS: %s, DELTA: %s, DIST: %s, SPEED %s, STEER %s" % (time.time() - run_start_time, currentLat, currentLong, currentBearing, compass_value, delta_angle, currentDistance, speed, steer_value))
     set_pwr_and_steer(steer_value, speed)
     #time.sleep(0.5)
 
