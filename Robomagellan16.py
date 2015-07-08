@@ -23,6 +23,8 @@ datalog = Logger()
 compass_value = 0
 compass_run_flag = False
 
+bump_switch_state = 0
+
 #GPS Variables
 GPS_run_flag = False
 GPS_Lat = 0
@@ -263,7 +265,7 @@ def drive_to_cone(speed, Latitude, Longitude):
      while currentDistance < 7:
         datalog.write("Camera Mode")
         camera_value = get_camera_values()[0]
-        if camer_value == 0:
+        if camera_value == 0:
           if time.time() % 15 < 15:
             steer_value = -500
           else:
@@ -307,6 +309,10 @@ def june16course():
   drive_to_cone(1600, 33.77845666666666, 118.41903666666667)
   drive_to_cone(1600, 33.77858166666667, 118.41884166666667)
 
+def july7course():
+  drive_to_cone(1600, 33.77854, 118.418916667)
+  drive_to_cone(1600, 33.7786883333333335, 118.41892)
+
 #========================================================
 #Main program starts here
 #========================================================
@@ -329,7 +335,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  june16course()
+  july7course()
 
 except KeyboardInterrupt:
   pass
