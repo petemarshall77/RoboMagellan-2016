@@ -3,7 +3,7 @@ from time import asctime
 class Logger:
 
     def __init__(self):
-        filename = "%s.%s" % (asctime(), 'log')
+        filename = "log/%s.%s" % (asctime(), 'log')
         self.file = open(filename, 'w')
         print "Created log file %s\n" % filename
 
