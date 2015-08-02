@@ -111,6 +111,7 @@ void setup()
   pinMode(power_Pin, INPUT);
   pinMode(steer_Out, OUTPUT);
   pinMode(power_Out, OUTPUT);
+  pinMode(LED_pin,OUTPUT);
 
   // Ensures that the two ouput pins are set to low at the start
   digitalWrite(steer_Out, LOW);
