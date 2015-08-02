@@ -263,16 +263,17 @@ def drive_to_cone(speed, Latitude, Longitude):
      (currentLat,currentLong)=get_GPS()
      (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
      while currentDistance < 7:
-        datalog.write("Camera Mode")
+
         camera_value = get_camera_values()[0]
         if camera_value == 0:
+          datalog.write("Camera Mode - No data")
           if time.time() % 15 < 15:
-            steer_value = -500
+            steer_value = 0
           else:
-            steer_value = 500
+            steer_value = 0
         else:
           steer_value = ((camera_value * (500/320))-500) 
-          datalog.write("DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % (currentDistance, camera_value, steer_value))
+          datalog.write("Camera Mode - DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % (currentDistance, camera_value, steer_value))
 
           set_pwr_and_steer(steer_value,camera_speed)
         if get_bump_switch_state() == True:
