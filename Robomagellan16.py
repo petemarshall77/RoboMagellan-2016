@@ -37,7 +37,7 @@ camera_run_flag = False
 #Steering Power Variables
 steering_gain = 2.5
 sum_steering_gain = 0.2
-camera_speed = 1595
+camera_speed = 1590
 GPS_speed = 1600
         
 #Port Definitions
@@ -191,7 +191,7 @@ time.sleep(5)
 
 #Send Power and Steering Data
 def set_pwr_and_steer(steer_value, power):
-  steer_value = steer_value + 100
+  # steer_value = steer_value + 100
   if steer_value > 500:
     steer_value = 500
   elif steer_value < -500:
@@ -267,17 +267,20 @@ def drive_to_cone(speed, Latitude, Longitude):
         camera_value = get_camera_values()[0]
         if camera_value == 0:
           datalog.write("Camera Mode - No data")
+          # Hunting code: steer from side to side (currently disabled)
+          time.sleep(0.2)
           if time.time() % 15 < 15:
             steer_value = 0
           else:
             steer_value = 0
         else:
-          steer_value = ((camera_value * (500/320))-500) 
+          steer_value = int((camera_value * (500.0/320.0))-500) 
           datalog.write("Camera Mode - DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % (currentDistance, camera_value, steer_value))
 
-          set_pwr_and_steer(steer_value,camera_speed)
+        set_pwr_and_steer(steer_value,camera_speed)
         if get_bump_switch_state() == True:
 	  found_it = True
+          datalog.write("Found it!")
           stop_driving()
           time.sleep(1)
           set_pwr_and_steer(0, 1380)
@@ -314,6 +317,14 @@ def july7course():
   drive_to_cone(1600, 33.77854, 118.418916667)
   drive_to_cone(1600, 33.7786883333333335, 118.41892)
 
+def july14course():
+  drive_to_cone(1600, 33.77849666666667, 118.41903166666667)
+  drive_to_cone(1600, 33.77864833333334, 118.41890666666667)
+
+def july28course():
+  drive_to_cone(1600, 33.77851166666667, 118.41903)
+  drive_to_cone(1600, 33.77865333333333, 118.418925)
+
 #========================================================
 #Main program starts here
 #========================================================
@@ -336,7 +347,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  july7course()
+  july28course()
 
 except KeyboardInterrupt:
   pass
