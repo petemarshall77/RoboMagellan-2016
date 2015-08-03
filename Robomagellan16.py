@@ -279,7 +279,7 @@ def drive_to_cone(speed, Latitude, Longitude):
 
         set_pwr_and_steer(steer_value,camera_speed)
         if get_bump_switch_state() == True:
-	  found_it = True
+          found_it = True
           datalog.write("Found it!")
           stop_driving()
           time.sleep(1)
