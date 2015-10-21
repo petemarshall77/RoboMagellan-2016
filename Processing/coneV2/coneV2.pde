@@ -15,8 +15,12 @@ color trackColor;
 void setup() {
   size(640,480);
   video = new Capture(this,width,height);
-  // Start off tracking for orange
-  trackColor = color(255,103,0);
+  //Load saved color
+  String[] savedString = loadStrings("Colorsave.txt");
+  println(savedString[0]);
+  trackColor = color(unbinary(savedString[0]), unbinary(savedString[1]), unbinary(savedString[2]));
+  println(savedString);
+  println(red(trackColor), green(trackColor), blue(trackColor), "\n");
   video.start();
   smooth();
   
@@ -34,7 +38,7 @@ void draw() {
   image(video,0,0);
 
   // Before we begin searching, the "world record" for closest color is set to a high number that is easy for the first pixel to beat.
-  float threshold = 40; 
+  float threshold = 120; 
 
 
   int countXY = 0;
@@ -61,7 +65,6 @@ void draw() {
         sumX += x;
         sumY += y;
         countXY++;
-        
       }
     }
   }
@@ -85,4 +88,7 @@ void mousePressed() {
   // Save color where the mouse is clicked in trackColor variable
   int loc = mouseX + mouseY*video.width;
   trackColor = video.pixels[loc];
+  String[] saveString = {binary((int)red(trackColor)), binary((int)green(trackColor)), binary((int)blue(trackColor))};
+  println(saveString);
+  saveStrings("Colorsave.txt", saveString);
 }
