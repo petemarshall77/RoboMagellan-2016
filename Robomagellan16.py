@@ -222,6 +222,12 @@ def drive(speed, target_heading, time_in_seconds):
 def stop_driving():
   drive(1500, 0, 1)
 
+#Determine if robot is in camera regime
+def in_camera_regime(currentDistance, pixelCount):
+    datalog.write("Camera Regime %d %d" %(currentDistance, pixelCount))
+    datalog.write(currentDistance < 10 and pixelCount > (currentDistance * -20.0/8.0 + 35)**2)
+    return currentDistance < 10 and pixelCount > (currentDistance * -20.0/8.0 + 35)**2
+
 #Drive to specified GPS way point. 
 def drive_to(speed, Latitude, Longitude):
   datalog.write("drive_to: %s, %s, %s" % (speed, Latitude, Longitude))
@@ -230,7 +236,7 @@ def drive_to(speed, Latitude, Longitude):
   (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
   sum_delta_angle = 0
   delta_angle_previous = 0
-  while (currentDistance > 7):
+  while not in_camera_regime(currentDistance, get_camera_values()[1]):
     compass_value = get_compass()
     delta_angle = currentBearing - compass_value
     if delta_angle > 180:
@@ -262,7 +268,7 @@ def drive_to_cone(speed, Latitude, Longitude):
      drive_to(speed, Latitude, Longitude)
      (currentLat,currentLong)=get_GPS()
      (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
-     while currentDistance < 7:
+     while in_camera_regime(currentDistance, get_camera_values()[1]):
 
         camera_value = get_camera_values()[0]
         if camera_value == 0:
@@ -324,6 +330,10 @@ def july14course():
 def july28course():
   drive_to_cone(1600, 33.77851166666667, 118.41903)
   drive_to_cone(1600, 33.77865333333333, 118.418925)
+  
+def september27course():
+  drive_to_cone(1600, 33.78109833333333, 118.419435)
+  drive_to_cone(1600, 33.7812, 118.41916166666667)
 
 #========================================================
 #Main program starts here
@@ -347,7 +357,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  july28course()
+  september27course()
 
 except KeyboardInterrupt:
   pass
