@@ -37,8 +37,8 @@ camera_run_flag = False
 #Steering Power Variables
 steering_gain = 2.5
 sum_steering_gain = 0.2
-camera_speed = 1590
-GPS_speed = 1600
+camera_speed = 1550
+GPS_speed = 1560
         
 #Port Definitions
 steeringPower_port_name = '/dev/ttyACM0'
@@ -327,13 +327,9 @@ def july14course():
   drive_to_cone(1600, 33.77849666666667, 118.41903166666667)
   drive_to_cone(1600, 33.77864833333334, 118.41890666666667)
 
-def july28course():
-  drive_to_cone(1600, 33.77851166666667, 118.41903)
-  drive_to_cone(1600, 33.77865333333333, 118.418925)
-  
-def september27course():
-  drive_to_cone(1600, 33.78109833333333, 118.419435)
-  drive_to_cone(1600, 33.7812, 118.41916166666667)
+def aug11course():
+  drive_to_cone(1600, 33.77851666666667, 118.41900833333334)
+  drive_to_cone(1600, 33.77867166666667, 118.41894333333333)
 
 #========================================================
 #Main program starts here
@@ -357,7 +353,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  september27course()
+  aug11course()
 
 except KeyboardInterrupt:
   pass
