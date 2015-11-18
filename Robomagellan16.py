@@ -334,6 +334,10 @@ def aug11course():
 def nov8course():
   drive_to_cone(1600, 33.77864666666667, 118.41893166666667)
   drive_to_cone(1600, 33.778468333333336, 118.41905)
+
+def nov15course():
+  drive_to_cone(1600, 33.77863, 118.41891333333334)
+  drive_to_cone(1600, 33.778533333333336, 118.418995)
   
 
 #========================================================
@@ -358,7 +362,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  nov8course()
+  nov15course()
 
 except KeyboardInterrupt:
   pass
