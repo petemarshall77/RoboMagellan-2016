@@ -35,8 +35,8 @@ camera_values = ""
 camera_run_flag = False
 
 #Steering Power Variables
-steering_gain = 2.5
-sum_steering_gain = 0.2
+proportional_steering_gain = 2.5
+differential_steering_gain = 0.2
 camera_speed = 1550
 GPS_speed = 1560
         
@@ -234,7 +234,6 @@ def drive_to(speed, Latitude, Longitude):
 
   (currentLat,currentLong)=get_GPS()
   (currentDistance,currentBearing)=get_distance_and_bearing(currentLat,currentLong,Latitude,Longitude)
-  sum_delta_angle = 0
   delta_angle_previous = 0
   while not in_camera_regime(currentDistance, get_camera_values()[1]):
     compass_value = get_compass()
@@ -244,15 +243,10 @@ def drive_to(speed, Latitude, Longitude):
     elif delta_angle < -180:
       delta_angle = 360 + delta_angle
     
-    sum_delta_angle += delta_angle
-    
-    if delta_angle_previous > 0 and delta_angle < 0:
-      sum_delta_angle = 0
-    if delta_angle_previous < 0 and delta_angle > 0:
-      sum_delta_angle = 0
+    delta_delta_angle = delta_angle_previous - delta_angle
     delta_angle_previous = delta_angle
      
-    steer_value = int((500.0/180.0) * delta_angle * steering_gain + sum_delta_angle * sum_steering_gain)
+    steer_value = int((500.0/180.0) * (delta_angle * proportional_steering_gain - delta_delta_angle * differential_steering_gain)) 
       
     datalog.write("TIME: %s, LAT: %s, LON: %s, BEARING: %s, COMPASS: %s, DELTA: %s, DIST: %s, SPEED %s, STEER %s" % (time.time() - run_start_time, currentLat, currentLong, currentBearing, compass_value, delta_angle, currentDistance, speed, steer_value))
     set_pwr_and_steer(steer_value, speed)
