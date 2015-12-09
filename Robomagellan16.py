@@ -215,7 +215,7 @@ def drive(speed, target_heading, time_in_seconds):
     elif delta_angle < -180:
       delta_angle = 360 + delta_angle
      
-    steer_value = int((500.0/180.0) * delta_angle * steering_gain)
+    steer_value = int((500.0/180.0) * delta_angle * proportional_steering_gain)
       
     set_pwr_and_steer(steer_value, speed)
 
@@ -329,9 +329,9 @@ def nov8course():
   drive_to_cone(1600, 33.77864666666667, 118.41893166666667)
   drive_to_cone(1600, 33.778468333333336, 118.41905)
 
-def nov15course():
-  drive_to_cone(1600, 33.77863, 118.41891333333334)
-  drive_to_cone(1600, 33.778533333333336, 118.418995)
+def dec6course():
+  drive_to_cone(1600, 33.77868, 118.41895166666667)
+  drive_to_cone(1600, 33.778513333333336, 118.41902)
   
 
 #========================================================
@@ -356,7 +356,7 @@ try:
     pass
   datalog.write("Go!!!")
   #drive_gps_only()
-  nov15course()
+  dec6course()
 
 except KeyboardInterrupt:
   pass
