@@ -309,8 +309,10 @@ void do_drive()
   steer_servo.attach(steer_Out);
   power_servo.attach(power_Out);
   
+  loop_start_time = micros();
+  
   while (true) {
-    loop_start_time = micros();
+    
     
     // Process line of data if available
     if (readLine(serialBuffer)) {
@@ -345,7 +347,15 @@ void do_drive()
       // Got good values, and safety switch is off: write power and steering values to hardware
       steer_servo.writeMicroseconds(steer_value);
       power_servo.writeMicroseconds(power_value);
+      
+      loop_start_time = micros();
+      
     }
+    if(micros() - loop_start_time > 2000000){
+      power_servo.writeMicroseconds(1500);  
+      Serial.println("Power value timed out.");
+      loop_start_time = micros();
+      }
   }
 }
 
