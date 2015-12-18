@@ -13,6 +13,7 @@ import sys
 import os.path
 from threading import Thread
 from logger import Logger
+from robotcontroller import RobotController
 
 run_start_time = time.time()
 
@@ -41,8 +42,7 @@ GPS_speed = 1560
 #Port Definitions
 steeringPower_port_name = '/dev/ttyACM0'
 compass_port_name = '/dev/ttyACM1'
-GPS_port_name = '/dev/ttyUSB0'      
-
+GPS_port_name = '/dev/ttyUSB0'
 
 #Terminate The Program
 def terminate():
@@ -321,9 +321,8 @@ def main():
 
     # Start the power/steering serial port (causes the Arduido to reset so
     # wait a few seconds for that to happen)
-    datalog.write("Starting Power/Steering Communications")
-
-    inputSerial = serial.Serial(steeringPower_port_name, 9600)
+    robot = RobotController(steeringPower_port_name, 9600, datalog)
+    robot.start()
     time.sleep(5)
 
     # Start the compass serial port
@@ -336,15 +335,10 @@ def main():
 
 
     # Set the Arduino to Drive Mode by sending control string
-    datalog.write("Set to DRIVE mode")
-    inputSerial.write("+++DRIVE+++")
-    inputSerial.write("\n")
-    #inputSerial.flush()
+    robot.drive()
     time.sleep(5)
 
-
-
-    datalog.write("Starting Compass Thread")  
+    datalog.write("Starting Compass Thread")
     compass_thread = Thread(target=compass_thread)
     compass_thread.start()
 
@@ -372,25 +366,12 @@ def main():
     #Main program stops here
     #========================================================
     stop_driving()
-    datalog.write("Set to STOPPED mode")
-    inputSerial.write("+++STOP+++")
-    inputSerial.write("\n")
-    inputSerial.flush()
+    robot.stop()
 
     terminate()
     datalog.write('Done!!!')
     del datalog
     
-    
+
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
