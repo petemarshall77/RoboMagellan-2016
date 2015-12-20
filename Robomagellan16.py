@@ -10,6 +10,7 @@ from powersteering import *
 from compass import *
 from gps import *
 from camera import *
+from robot import *
 
 #Port Definitions
 steeringPower_port_name = '/dev/ttyACM0'
@@ -40,6 +41,9 @@ def dec6course(robot):
   robot.drive_to_cone(1600, 33.77868, 118.41895166666667)
   robot.drive_to_cone(1600, 33.778513333333336, 118.41902)
 
+def dec20course(robot):
+  robot.drive_to_cone(1600, 33.77862833333333, 118.41897)
+  robot.drive_to_cone(1600, 33.778395, 118.41895666666667)
 
 #========================================================
 #Main program starts here
@@ -69,11 +73,11 @@ def main():
     gps_thread = GPSThread(gps, datalog)
     gps_thread.start()
 
-    camera = Camera(logger)
-    camera_thread = CameraThread(camera, logger)
+    camera = Camera(datalog)
+    camera_thread = CameraThread(camera, datalog)
     camera_thread.start()
 
-    robot = Robot(powersteering, compass, gps, camera, datalog)
+    robot = Robot(power_steering, compass, gps, camera, datalog)
 
     try:
         gps.get_GPS()
@@ -81,7 +85,7 @@ def main():
         while compass.get_bump_switch_state() == False:
             pass
         datalog.write("Go!!!")
-        dec6course(robot)
+        dec20course(robot)
 
     except KeyboardInterrupt:
         pass

@@ -15,9 +15,9 @@ class Camera:
         data = self.socket.recv(8192)
         fields = data.split(" ")
         try:
-            values = (int(fields[0]), int(fields[1]))
+            self.camera_values = (int(fields[0]), int(fields[1]))
         except:
-            self.logger.write("bad camera data", data)
+            self.logger.write("bad camera data %s" % data)
 
     def close(self):
         self.socket.close()
@@ -36,7 +36,7 @@ class CameraThread(threading.Thread):
     def run(self):
         self.logger.write("Starting camera thread")
         while not self.stoprequest.isSet():
-            self.camera.read_data()
+            self.camera.get_data()
         self.logger.write("Terminating camera thread")
         self.camera.close()
 

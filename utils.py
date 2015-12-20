@@ -4,10 +4,10 @@ class Utils:
 
     @staticmethod
     def get_distance_and_bearing(from_lat, from_long, to_lat, to_long):
-        from_lat = degrees_to_radians(from_lat)
-        from_long = degrees_to_radians(from_long)
-        to_lat = degrees_to_radians(to_lat)
-        to_long = degrees_to_radians(to_long)
+        from_lat = Utils.degrees_to_radians(from_lat)
+        from_long = Utils.degrees_to_radians(from_long)
+        to_lat = Utils.degrees_to_radians(to_lat)
+        to_long =Utils.degrees_to_radians(to_long)
         delta_lat = to_lat - from_lat
         delta_long = to_long - from_long
 
@@ -19,7 +19,7 @@ class Utils:
         y = math.sin(from_long - to_long) * math.cos(to_lat)
         x = math.cos(from_lat) * math.sin(to_lat) - math.sin(from_lat) * \
           math.cos(to_lat) * math.cos(from_long - to_long)
-        bearing = (radians_to_degrees(math.atan2(y,x)) + 360) % 360
+        bearing = (Utils.radians_to_degrees(math.atan2(y,x)) + 360) % 360
 
         return (distance, bearing)
 

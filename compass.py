@@ -39,7 +39,7 @@ class CompassThread(threading.Thread):
     def run(self):
         self.logger.write("Starting compass thread")
         while not self.stoprequest.isSet():
-            compass.read_data()
+            self.compass.read_data()
         self.logger.write("Terminating compass thread")
         self.compass.close()
 

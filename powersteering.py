@@ -4,7 +4,7 @@ class PowerSteering:
 
     def __init__(self, port_name, baud_rate, logger):
         self.logger = logger
-        self.loggger.write("Starting Power/Steering Communications")
+        self.logger.write("Starting Power/Steering Communications")
         self.serial = Serial(port_name, baud_rate)
 
     def set_mode_drive(self):
@@ -18,7 +18,7 @@ class PowerSteering:
         self.serial.write("\n")
         self.serial.flush()
 
-    def set_pwr_and_steer(steer_value, power):
+    def set_pwr_and_steer(self, steer_value, power):
       if steer_value > 500:
         steer_value = 500
       elif steer_value < -500:
