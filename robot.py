@@ -15,8 +15,8 @@ class Robot:
         self.camera = camera
         self.run_start_time = time.time()
 
-    def drive_to_waypoint(self, speed, latitude, longitude):
-        self.logger.write("drive_to: %s, %s, %s" % (speed, latitude, longitude))
+    def drive_to_waypoint(self, target_speed, latitude, longitude):
+        self.logger.write("drive_to: %s, %s, %s" % (target_speed, latitude, longitude))
 
         (currentLat, currentLong) = self.gps.get_GPS()
         (currentDistance, currentBearing) = Utils.get_distance_and_bearing(currentLat, currentLong, latitude, longitude)
@@ -24,6 +24,7 @@ class Robot:
 
         while not self.in_camera_regime(currentDistance, self.camera.get_camera_values()[1]): #TODO: add camera class + this method
             compass_value = self.compass.get_compass()
+            current_speed = self.compass.get_speed()
             delta_angle = currentBearing - compass_value
             delta_angle = self.reduce_delta_angle(delta_angle)
 
@@ -31,10 +32,16 @@ class Robot:
 
             delta_angle_previous = delta_angle
 
-            self.logger.write("TIME: %s, LAT: %s, LON: %s, BEARING: %s, COMPASS: %s, DELTA: %s, DIST: %s, SPEED %s, STEER %s" \
-                % (time.time() - self.run_start_time, currentLat, currentLong, currentBearing, compass_value, delta_angle, \
-                currentDistance, speed, steer_value))
-            self.powersteering.set_pwr_and_steer(steer_value, speed)
+            self.logger.write("TIME: %s, LAT: %s, LON: %s " \
+                % (time.time() - self.run_start_time, currentLat, currentLong))
+                
+            self.logger.write("BEARING: %s, COMPASS: %s, DELTA: %s" \
+                % (currentBearing, compass_value, delta_angle))
+                
+            self.logger.write("DIST: %s, TARGET_SPEED %s, CURRENT_SPEED %s, STEER %s" \
+                % (currentDistance, target_speed, current_speed, steer_value))
+                
+            self.powersteering.set_pwr_and_steer(steer_value, target_speed)
 
             (currentLat,currentLong) = self.gps.get_GPS()
             (currentDistance,currentBearing) = Utils.get_distance_and_bearing(currentLat, currentLong, latitude, longitude)

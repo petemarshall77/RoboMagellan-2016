@@ -42,8 +42,9 @@ def dec6course(robot):
   robot.drive_to_cone(1600, 33.778513333333336, 118.41902)
 
 def dec20course(robot):
-  robot.drive_to_cone(1600, 33.77862833333333, 118.41897)
-  robot.drive_to_cone(1600, 33.778395, 118.41895666666667)
+  robot.drive_to_waypoint(1600, 33.77862833333333, 118.41897)
+  robot.drive_to_waypoint(1600, 33.778395, 118.41895666666667)
+  robot.drive_to_waypoint(1600, 33.77862833333333, 118.41897)
 
 #========================================================
 #Main program starts here
