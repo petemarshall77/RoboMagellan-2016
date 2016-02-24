@@ -46,6 +46,17 @@ def dec20course(robot):
   robot.drive_to_waypoint(1600, 33.778395, 118.41895666666667)
   robot.drive_to_waypoint(1600, 33.77862833333333, 118.41897)
 
+def jan10course(robot):
+  robot.drive_to_cone(2, 33.778621666666666, 118.41890833333333)
+  robot.drive_to_cone(2, 33.778481666666664, 118.41897333333333)
+
+def jan24course(robot):
+  robot.drive_to_cone(2, 33.779722, 118.41888888)
+  
+def feb16course(robot):
+  robot.drive_to_cone(2, 33.7785533333, 118.419005)
+  robot.drive_to_cone(2, 33.778655, 118.41893333333333)
+
 #========================================================
 #Main program starts here
 #========================================================
@@ -86,7 +97,7 @@ def main():
         while compass.get_bump_switch_state() == False:
             pass
         datalog.write("Go!!!")
-        dec20course(robot)
+        feb16course(robot)
 
     except KeyboardInterrupt:
         pass

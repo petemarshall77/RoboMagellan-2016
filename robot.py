@@ -41,7 +41,7 @@ class Robot:
             self.logger.write("DIST: %s, TARGET_SPEED %s, CURRENT_SPEED %s, STEER %s" \
                 % (currentDistance, target_speed, current_speed, steer_value))
                 
-            self.powersteering.set_pwr_and_steer(steer_value, target_speed)
+            self.powersteering.set_pwr_and_steer(steer_value, target_speed, current_speed)
 
             (currentLat,currentLong) = self.gps.get_GPS()
             (currentDistance,currentBearing) = Utils.get_distance_and_bearing(currentLat, currentLong, latitude, longitude)
@@ -64,13 +64,13 @@ class Robot:
                     self.logger.write("Camera Mode - DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % \
                         (currentDistance, camera_value, steer_value))
 
-                self.powersteering.set_pwr_and_steer(steer_value, self.camera_speed)
+                self.powersteering.set_pwr_and_steer(steer_value, self.camera_speed, self.current_speed)
                 if self.compass.get_bump_switch_state() == True:
                     found_it = True
                     self.logger.write("Found it!")
                     self.stop_driving()
                     time.sleep(1)
-                    self.powersteering.set_pwr_and_steer(0, 1380)
+                    self.powersteering.set_pwr_and_steer(0, -1.0, self.current_speed)
                     time.sleep(3)
                     self.stop_driving()
                     break
@@ -99,13 +99,14 @@ class Robot:
         start_time = time.time()
         while ((time.time() - start_time) < time_in_seconds):
             compass_value = self.compass.get_compass()
+            current_speed = self.get_speed()
             delta_angle = target_heading - compass_value
             delta_angle = self.reduce_delta_angle(delta_angle)
             steer_value = int((500.0/180.0) * delta_angle * self.proportional_steering_gain)
-            self.powersteering.set_pwr_and_steer(steer_value, speed)
+            self.powersteering.set_pwr_and_steer(steer_value, speed, current_speed)
 
     def stop_driving(self):
-      self.drive(1500, 0, 1)
+      self.drive(0, 0, 1)
 
     def in_camera_regime(self, currentDistance, pixelCount):
         self.logger.write("Camera Regime %d %d" % (currentDistance, pixelCount))
