@@ -6,7 +6,7 @@ class Robot:
     def __init__(self, powersteering, compass, gps, camera, logger):
         self.proportional_steering_gain = 2.5
         self.differential_steering_gain = 0.2
-        self.camera_speed = 1550
+        self.camera_speed = 1.0
 
         self.logger = logger
         self.powersteering = powersteering
@@ -54,6 +54,7 @@ class Robot:
             (currentDistance,currentBearing) = Utils.get_distance_and_bearing(currentLat, currentLong, latitude, longitude)
 
             while self.in_camera_regime(currentDistance, self.camera.get_camera_values()[1]):
+                current_speed = self.compass.get_speed()
                 camera_value = self.camera.get_camera_values()[0]
                 if camera_value == 0:
                     self.logger.write("Camera Mode - No data")
@@ -64,7 +65,7 @@ class Robot:
                     self.logger.write("Camera Mode - DISTANCE: %s CAMERA-VALUE: %s, STEER: %s" % \
                         (currentDistance, camera_value, steer_value))
 
-                self.powersteering.set_pwr_and_steer(steer_value, self.camera_speed, self.current_speed)
+                self.powersteering.set_pwr_and_steer(steer_value, self.camera_speed, current_speed)
                 if self.compass.get_bump_switch_state() == True:
                     found_it = True
                     self.logger.write("Found it!")
@@ -99,7 +100,7 @@ class Robot:
         start_time = time.time()
         while ((time.time() - start_time) < time_in_seconds):
             compass_value = self.compass.get_compass()
-            current_speed = self.get_speed()
+            current_speed = self.compass.get_speed()
             delta_angle = target_heading - compass_value
             delta_angle = self.reduce_delta_angle(delta_angle)
             steer_value = int((500.0/180.0) * delta_angle * self.proportional_steering_gain)
