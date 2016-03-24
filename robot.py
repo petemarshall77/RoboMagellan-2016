@@ -6,7 +6,7 @@ class Robot:
     def __init__(self, powersteering, compass, gps, camera, logger):
         self.proportional_steering_gain = 2.5
         self.differential_steering_gain = 0.2
-        self.camera_speed = 1.0
+        self.camera_speed = 0.8
 
         self.logger = logger
         self.powersteering = powersteering
@@ -71,7 +71,7 @@ class Robot:
                     self.logger.write("Found it!")
                     self.stop_driving()
                     time.sleep(1)
-                    self.powersteering.set_pwr_and_steer(0, -1.0, self.current_speed)
+                    self.powersteering.set_pwr_and_steer(0, -1.0, current_speed)
                     time.sleep(3)
                     self.stop_driving()
                     break

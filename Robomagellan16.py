@@ -63,6 +63,10 @@ def mar6course(robot):
   robot.drive_to_cone(2, 33.77861, 118.41888333333333)
   robot.drive_to_cone(2, 33.778515, 118.41898666666667)
 
+def mar13course(robot):
+  robot.drive_to_cone(1.5, 33.77858833333333, 118.41896833333334)
+  robot.drive_to_cone(1.5, 33.77849333333333, 118.41899833333333)
+
 #========================================================
 #Main program starts here
 #========================================================
@@ -103,7 +107,7 @@ def main():
         while compass.get_bump_switch_state() == False:
             pass
         datalog.write("Go!!!")
-        mar6course(robot)
+        mar13course(robot)
 
     except KeyboardInterrupt:
         pass
