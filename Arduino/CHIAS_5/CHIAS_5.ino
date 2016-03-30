@@ -53,6 +53,7 @@
 //     does nothing). You have been warned.
 //
 #include <Servo.h>
+#include <SoftwareSerial.h>
 
 //------------------------------------------------------------------------
 // Dramatis personae
@@ -65,6 +66,10 @@
 #define BUFFER_LENGTH 80
 char serialBuffer[BUFFER_LENGTH];
 String inputString;
+
+// Xbee Serial
+SoftwareSerial xbee(12, 13); //CHANGE pinX AND pinY: pinX SHOULD BE THE WIRE CONNECTED TO RX, pinY SHOULD BE TX
+int killSwitch = 0;
 
 // System can be in Juan of four states...
 #define STOPPED  1
@@ -105,6 +110,9 @@ void setup()
   // Set up serial communications
   Serial.begin(9600);
   Serial.println("Serial monitor connected");
+
+  // Set up xbee commuications
+  xbee.begin(9600);
   
    // Pin initializations
   pinMode(steer_Pin, INPUT);
@@ -216,6 +224,21 @@ void do_manual()
         system_state = STOPPED;
         return;
         }
+
+         if (xbee.available()) {  //Checks if there is data being received from XBEE
+          if(killSwitch < 1){
+             // stop driving - disable interrupts and set power/steering low
+            detachInterrupt(1);
+//            steer_servo.detach();
+//            power_servo.detach();
+            digitalWrite(steer_Out, LOW);
+            digitalWrite(power_Out, LOW);
+            // update the system state and return
+            system_state = STOPPED;
+            killSwitch++;
+            return;
+          }
+        }
     }
   }
 }
@@ -260,6 +283,20 @@ void do_record()
         system_state = STOPPED;
         return;
         }
+        if (xbee.available()) {  //Checks if there is data being received from XBEE
+          if(killSwitch < 1){
+             // stop driving - disable interrupts and set power/steering low
+            detachInterrupt(1);
+//            steer_servo.detach();
+//            power_servo.detach();
+            digitalWrite(steer_Out, LOW);
+            digitalWrite(power_Out, LOW);
+            // update the system state and return
+            system_state = STOPPED;
+            killSwitch++;
+            return;
+          }
+        }
     }
     //
     // Write out current steering and power values, conditioning any
@@ -298,6 +335,7 @@ void do_record()
 void do_drive()
 {
   unsigned long loop_start_time;
+  unsigned long Xbee_start_time;
   unsigned long steer_value, power_value;
   
   Servo steer_servo;
@@ -310,6 +348,7 @@ void do_drive()
   power_servo.attach(power_Out);
   
   loop_start_time = micros();
+  Xbee_start_time = micros();
   
   while (true) {
     
@@ -329,7 +368,24 @@ void do_drive()
         system_state = STOPPED;
         return;
         }
-        
+
+/*        if (xbee.available()) {  //Checks if there is data being received from XBEE
+          if(killSwitch < 1){
+             // stop driving - disable interrupts and set power/steering low
+            detachInterrupt(1);
+            steer_servo.detach();
+            power_servo.detach();
+            digitalWrite(steer_Out, LOW);
+            digitalWrite(power_Out, LOW);
+            // update the system state and return
+            system_state = STOPPED;
+            killSwitch++;
+            return;
+          }
+        }
+ */
+ 
+
       // Process the data string, should be nnnn,nnnn (steer,power)
       steer_value = inputString.substring(0,4).toInt();
       power_value = inputString.substring(5,9).toInt();
@@ -351,6 +407,18 @@ void do_drive()
       loop_start_time = micros();
       
     }
+    
+    //Check that Xbee signal is available & we've recieved a power value recently.
+    
+    if(xbee.available()) {
+      Xbee_start_time = micros();
+      xbee.flush();
+    }
+    else if (micros() - Xbee_start_time > 100000) {
+      Serial.println("No Xbee signal - stopping");
+      power_servo.writeMicroseconds(1500);
+    }
+      
     if(micros() - loop_start_time > 2000000){
       power_servo.writeMicroseconds(1500);  
       Serial.println("Power value timed out.");
